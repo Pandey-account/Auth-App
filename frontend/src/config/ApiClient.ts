@@ -2,6 +2,7 @@ import axios from "axios";
 import useAuth from "../Auth/store";
 import { refreshToken } from "../services/AuthService";
 
+console.log("API URL:", import.meta.env.VITE_API_BASE_URL);
 const apiClient = axios.create({
     baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api/v1",
     
