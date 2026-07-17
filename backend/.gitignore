@@ -1,11 +1,12 @@
 HELP.md
 
+# Maven
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### STS ###
+# Eclipse / STS
 .apt_generated
 .classpath
 .factorypath
@@ -13,14 +14,15 @@ target/
 .settings
 .springBeans
 .sts4-cache
+bin/
 
-### IntelliJ IDEA ###
-.idea
+# IntelliJ IDEA
+.idea/
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -30,22 +32,21 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
-### VS Code ###
+# VS Code
 .vscode/
 
-### Environment ###
+# Environment Files
 .env
-.env.production
-.env.local
 .env.*
 !.env.example
 
-### Uploads ###
+# Uploads & Logs
 uploads/
 tmp/
 logs/
 *.log
+logs.txt
 
-### OS Files ###
+# OS Files
 .DS_Store
 Thumbs.db
