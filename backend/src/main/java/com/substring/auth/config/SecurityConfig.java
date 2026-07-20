@@ -56,10 +56,11 @@ public class SecurityConfig {
 	    // Added closing parenthesis here )
 	    .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) 
 	    .authorizeHttpRequests(auth -> auth
-	        .requestMatchers(AppConstants.AUTH_PUBLIC_URL).permitAll()
-	        .requestMatchers(AppConstants.USER_GUEST_URL).hasRole(AppConstants.GUEST_ROLE)
-	        .requestMatchers("/api/v1/users/**").hasRole(AppConstants.ADMIN_ROLE)
-	        .anyRequest().authenticated()
+							   .anyRequest().permitAll()
+	        // .requestMatchers(AppConstants.AUTH_PUBLIC_URL).permitAll()
+	        // .requestMatchers(AppConstants.USER_GUEST_URL).hasRole(AppConstants.GUEST_ROLE)
+	        // .requestMatchers("/api/v1/users/**").hasRole(AppConstants.ADMIN_ROLE)
+	       // .anyRequest().authenticated()
 	    )
 	    //oauth2 configuration
 	    
