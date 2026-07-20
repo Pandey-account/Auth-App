@@ -235,6 +235,7 @@ public class authControll {
 
 	@PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<UserDto> registerUser(@ModelAttribute UserDto userDto) {
+		System.out.println("===== REGISTER API HIT =====");
 		return ResponseEntity.status(HttpStatus.CREATED).body(authService.registerUser(userDto));
 	}
 
