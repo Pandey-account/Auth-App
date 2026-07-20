@@ -88,7 +88,7 @@ import lombok.RequiredArgsConstructor;
 @Component //or @service
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
- System.out.println("========= SECURITY CONFIG LOADED =========");
+
 	@Autowired
 	private JwtService jwtService;
 	@Autowired
