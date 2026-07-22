@@ -50,17 +50,16 @@ public class SecurityConfig {
 	
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		System.out.println("========= SECURITY CONFIG LOADED =========");
+		
 		http.csrf(AbstractHttpConfigurer::disable)
 	    .cors(Customizer.withDefaults())
 	    // Added closing parenthesis here )
 	    .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) 
 	    .authorizeHttpRequests(auth -> auth
-							   .anyRequest().permitAll()
-	        // .requestMatchers(AppConstants.AUTH_PUBLIC_URL).permitAll()
-	        // .requestMatchers(AppConstants.USER_GUEST_URL).hasRole(AppConstants.GUEST_ROLE)
-	        // .requestMatchers("/api/v1/users/**").hasRole(AppConstants.ADMIN_ROLE)
-	       // .anyRequest().authenticated()
+	        .requestMatchers(AppConstants.AUTH_PUBLIC_URL).permitAll()
+	        .requestMatchers(AppConstants.USER_GUEST_URL).hasRole(AppConstants.GUEST_ROLE)
+	        .requestMatchers("/api/v1/users/**").hasRole(AppConstants.ADMIN_ROLE)
+	        .anyRequest().authenticated()
 	    )
 	    //oauth2 configuration
 	    
