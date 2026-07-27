@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private RoleRepository roleRepository;
 	@Autowired
-	private final FileStorageService fileStorageService;;
+	private final FileStorageService fileStorageService;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
