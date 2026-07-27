@@ -8,11 +8,12 @@ public class AppConstants {
 		"/v3/api-docs/**",
 		"/swagger-ui.html",
 		"/swagger-ui/**",
+		"/api/v1/users/",
 		
 	};
 	
 	public static final String[] USER_GUEST_URL = {
-			"/api/v1/users/",
+			// "/api/v1/users/",
 			"/api/v1/users/profile",
 	        "/api/v1/users/profile-picture",
 	        "/api/v1/users/change-password"
