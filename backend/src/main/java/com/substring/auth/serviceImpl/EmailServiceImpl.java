@@ -21,7 +21,7 @@ public class EmailServiceImpl implements EmailService {
 
 		SimpleMailMessage message = new SimpleMailMessage();
 		
-        message.setFrom("mrpandey7759@gmail.com");
+       
 		message.setTo(email);
 		message.setSubject("Your Account Has Been Deleted Successfully");
 
@@ -34,17 +34,17 @@ public class EmailServiceImpl implements EmailService {
 				+ "Support Email: support@yourdomain.com\n\n" + "Thank you for using our platform.\n\n"
 				+ "Best regards,\n" + "The Support Team\n" + "Auth App");
 
-		 System.out.println("========== Before mailSender.send() ==========");
+		
 
     mailSender.send(message);
 
-    System.out.println("========== After mailSender.send() ==========");
+   
 	}
 
 	@Override
 	public void sendResetPasswordMail(String email, String name, String resetLink) {
 		SimpleMailMessage message = new SimpleMailMessage();
-
+message.setFrom("mrpandey7759@gmail.com");
 		message.setTo(email);
 		message.setSubject("\"Password Reset Request - Auth App");
 
@@ -59,8 +59,11 @@ public class EmailServiceImpl implements EmailService {
 				+ "If you believe someone is attempting to access your account without authorization, please contact our support team immediately.\n\n"
 				+ "Support Email: support@yourdomain.com\n\n"
 				+ "Best regards,\n" + "Security Team\n" + "Auth App");
+ System.out.println("========== Before mailSender.send() ==========");
 
-		mailSender.send(message);
+    mailSender.send(message);
+
+    System.out.println("========== After mailSender.send() ==========");
 	}
 
 	@Override
