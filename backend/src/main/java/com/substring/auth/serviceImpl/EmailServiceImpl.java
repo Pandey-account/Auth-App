@@ -55,13 +55,18 @@ message.setFrom("mrpandey7759@gmail.com");
 				+ "If you believe someone is attempting to access your account without authorization, please contact our support team immediately.\n\n"
 				+ "Support Email: support@yourdomain.com\n\n"
 				+ "Best regards,\n" + "Security Team\n" + "Auth App");
- System.out.println("========== Before mailSender.send() ==========");
+try {
+    System.out.println("Before mailSender.send()");
 
     mailSender.send(message);
 
-    System.out.println("========== After mailSender.send() ==========");
+    System.out.println("After mailSender.send()");
+} catch (Exception e) {
+    System.out.println("Mail Exception:");
+    e.printStackTrace();
+    throw e;
+}
 	}
-
 	@Override
 	public void sendOtpMail(String email, String name, String otp) {
 		SimpleMailMessage message = new SimpleMailMessage();
