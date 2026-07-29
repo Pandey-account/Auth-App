@@ -20,7 +20,8 @@ public class EmailServiceImpl implements EmailService {
 	public void sendAccountDeletedMail(String email, String name) {
 
 		SimpleMailMessage message = new SimpleMailMessage();
-
+		
+        message.setFrom("mrpandey7759@gmail.com");
 		message.setTo(email);
 		message.setSubject("Your Account Has Been Deleted Successfully");
 
@@ -33,7 +34,11 @@ public class EmailServiceImpl implements EmailService {
 				+ "Support Email: support@yourdomain.com\n\n" + "Thank you for using our platform.\n\n"
 				+ "Best regards,\n" + "The Support Team\n" + "Auth App");
 
-		mailSender.send(message);
+		 System.out.println("========== Before mailSender.send() ==========");
+
+    mailSender.send(message);
+
+    System.out.println("========== After mailSender.send() ==========");
 	}
 
 	@Override
