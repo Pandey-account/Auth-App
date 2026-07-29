@@ -47,79 +47,76 @@ public class SecurityConfig {
 	private JwtAuthenticationFilter jwtAuthenticationFilter;
 	@Autowired
 	private AuthenticationSuccessHandler authenticationSuccessHandler;
-	
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		
-		http.csrf(AbstractHttpConfigurer::disable)
-	    .cors(Customizer.withDefaults())
-	    // Added closing parenthesis here )
-	    .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) 
-	    .authorizeHttpRequests(auth -> auth
-	        .requestMatchers(AppConstants.AUTH_PUBLIC_URL).permitAll()
-	        .requestMatchers(AppConstants.USER_GUEST_URL).hasRole(AppConstants.GUEST_ROLE)
-	        .requestMatchers("/api/v1/users/**").hasRole(AppConstants.ADMIN_ROLE)
-	        .anyRequest().authenticated()
-	    )
-	    //oauth2 configuration
-	    
-	    .oauth2Login(oauth2 ->
-	    	oauth2.successHandler(authenticationSuccessHandler)
-	    	.failureHandler(null)
-	    )
-	    
-	    .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
-	    	authException.printStackTrace();
-	        response.setStatus(401);
-	        response.setContentType("application/json");
-	        String message = "Unauthorized access: " + authException.getMessage();
-	        
-	        String error = (String) request.getAttribute("error");
-	        if(error != null) {
-	        	message = error;
-	        }
-	        
+
+		http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
+				// Added closing parenthesis here )
+				.sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+				.authorizeHttpRequests(auth -> auth.requestMatchers(AppConstants.AUTH_PUBLIC_URL).permitAll()
+						.requestMatchers(AppConstants.USER_GUEST_URL).hasRole(AppConstants.GUEST_ROLE)
+						.requestMatchers("/api/v1/users/**").hasRole(AppConstants.ADMIN_ROLE).anyRequest()
+						.authenticated())
+				// oauth2 configuration
+
+				.oauth2Login(oauth2 -> oauth2.successHandler(authenticationSuccessHandler).failureHandler(null))
+
+				.exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) -> {
+					authException.printStackTrace();
+					response.setStatus(401);
+					response.setContentType("application/json");
+					String message = "Unauthorized access: " + authException.getMessage();
+
+					String error = (String) request.getAttribute("error");
+					if (error != null) {
+						message = error;
+					}
+
 //	        Map<String, String> errorMap = Map.of(
 //	            "message", message,
 //	            "statusCode", "401"
 //	        );
 
-	        var apiError = ApiError.of(HttpStatus.UNAUTHORIZED.value(), "Unauthorized Access", message, request.getRequestURI(),true); 
-	        try {
-	            String jsonResponse = new ObjectMapper().writeValueAsString(apiError);
-	            response.getWriter().write(jsonResponse);
-	        } catch (Exception e) {
-	            e.printStackTrace();
-	        }
-	    }).accessDeniedHandler((request,response,e) ->{
-	    	response.setStatus(403);
-	    	response.setContentType("application/json");
-	    	String message = e.getMessage();
-	    	String error = (String) request.getAttribute("error");
-	    	if(error != null) {
-	    		message = error;
-	    	}
-	    	var apiError = ApiError.of(HttpStatus.FORBIDDEN.value(), "Forbidden Access", message, request.getRequestURI(), true);
-	    	var objectMapper = new ObjectMapper();
-	    	response.getWriter().write(objectMapper.writeValueAsString(apiError));
-	    }))
-	    
-	    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+					var apiError = ApiError.of(HttpStatus.UNAUTHORIZED.value(), "Unauthorized Access", message,
+							request.getRequestURI(), true);
+					try {
+						String jsonResponse = new ObjectMapper().writeValueAsString(apiError);
+						response.getWriter().write(jsonResponse);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}).accessDeniedHandler((request, response, e) -> {
+					response.setStatus(403);
+					response.setContentType("application/json");
+					String message = e.getMessage();
+					String error = (String) request.getAttribute("error");
+					if (error != null) {
+						message = error;
+					}
+					var apiError = ApiError.of(HttpStatus.FORBIDDEN.value(), "Forbidden Access", message,
+							request.getRequestURI(), true);
+					var objectMapper = new ObjectMapper();
+					response.getWriter().write(objectMapper.writeValueAsString(apiError));
+				}))
 
-	return http.build();
-	} 
-	
+				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+		return http.build();
+	}
+
 	@Bean
 	public PasswordEncoder passwordEncoder() {
-		
+
 		return new BCryptPasswordEncoder();
-	} 
-	
+	}
+
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-		
+
 		return configuration.getAuthenticationManager();
 	}
+
 //	@Bean
 //	public UserDetailsService users() {
 //		
@@ -131,27 +128,25 @@ public class SecurityConfig {
 //	}
 	
 	@Bean
-	public CorsConfigurationSource corsConfigurationSource(
-	        @Value("${FRONT_END_URL}") String corsUrls) {
 
-	    CorsConfiguration config = new CorsConfiguration();
+	public CorsConfigurationSource corsConfigurationSource(@Value("${app.cors.front-end-url}") String corsUrls) {
 
-	    if (corsUrls != null && !corsUrls.isBlank()) {
-	        config.setAllowedOrigins(Arrays.asList(corsUrls.split(",")));
-	    }
 
-	    config.setAllowedMethods(
-	            List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-	    );
+		CorsConfiguration config = new CorsConfiguration();
 
-	    config.setAllowedHeaders(List.of("*"));
-	    config.setAllowCredentials(true);
+		if (corsUrls != null && !corsUrls.isBlank()) {
+			config.setAllowedOrigins(Arrays.asList(corsUrls.split(",")));
+		}
 
-	    UrlBasedCorsConfigurationSource source =
-	            new UrlBasedCorsConfigurationSource();
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
 
-	    source.registerCorsConfiguration("/**", config);
+		config.setAllowedHeaders(List.of("*"));
+		config.setAllowCredentials(true);
 
-	    return source;
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+		source.registerCorsConfiguration("/**", config);
+
+		return source;
 	}
 }

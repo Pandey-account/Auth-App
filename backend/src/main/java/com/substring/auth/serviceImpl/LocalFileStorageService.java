@@ -23,7 +23,7 @@ import com.substring.auth.repositories.UserRepository;
 import com.substring.auth.services.FileStorageService;
 
 @Service
-@Profile("local")
+@Profile("dev")
 public class LocalFileStorageService implements FileStorageService {
 
 	@Value("${file.upload-dir}")

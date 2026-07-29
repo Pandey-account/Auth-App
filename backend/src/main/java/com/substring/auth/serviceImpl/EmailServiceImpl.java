@@ -3,6 +3,7 @@ package com.substring.auth.serviceImpl;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import com.substring.auth.services.EmailService;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Profile("dev")
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 	

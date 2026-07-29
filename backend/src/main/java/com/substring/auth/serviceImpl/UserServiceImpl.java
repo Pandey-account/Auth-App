@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.Iterator;
 import java.util.UUID;
 
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,10 +43,10 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	private RefreshTokenRepository refreshTokenRepository;
-	
+
 	@Autowired
 	private EmailServiceImpl emailService;
 
@@ -62,8 +61,7 @@ public class UserServiceImpl implements UserService {
 			throw new IllegalArgumentException("User with given email already exists");
 
 		}
-		
-		
+
 		if (!userDto.getPassword().matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$")) {
 
 			throw new RuntimeException("Password must contain uppercase, lowercase, number and special character");
@@ -108,10 +106,10 @@ public class UserServiceImpl implements UserService {
 		if (userDto.getName() != null)
 			exitinguser.setName(userDto.getName());
 		if (userDto.getImageFile() != null && !userDto.getImageFile().isEmpty())
-			
+
 			fileStorageService.deleteFile(exitinguser.getImageFile());
-			exitinguser.setImageFile(fileStorageService.saveFile(userDto.getImageFile()));
-			
+		exitinguser.setImageFile(fileStorageService.saveFile(userDto.getImageFile()));
+
 		if (userDto.getProvider() != null)
 			exitinguser.setProvider(userDto.getProvider());
 		// change password updation logic
@@ -170,10 +168,10 @@ public class UserServiceImpl implements UserService {
 		if (userDto.getName() != null)
 			exitinguser.setName(userDto.getName());
 		if (userDto.getImageFile() != null && !userDto.getImageFile().isEmpty())
-			
+
 			fileStorageService.deleteFile(exitinguser.getImageFile());
-			exitinguser.setImageFile(fileStorageService.saveFile(userDto.getImageFile()));
-		    
+		exitinguser.setImageFile(fileStorageService.saveFile(userDto.getImageFile()));
+
 		if (userDto.getProvider() != null)
 			exitinguser.setProvider(userDto.getProvider());
 		// change password updation logic
@@ -193,17 +191,14 @@ public class UserServiceImpl implements UserService {
 
 		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new ResourceNotFoundException("User not found with given email "));
-		
+
 		refreshTokenRepository.deleteByUser(user);
-		
+
 		try {
-	        emailService.sendAccountDeletedMail(
-	            user.getEmail(),
-	            user.getName()
-	        );
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+			emailService.sendAccountDeletedMail(user.getEmail(), user.getName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		fileStorageService.deleteFile(user.getImageFile());
 		userRepository.delete(user);
 
@@ -246,7 +241,6 @@ public class UserServiceImpl implements UserService {
 			throw new RuntimeException("New password must be different from current password");
 		}
 
-
 		if (!passwordDto.getNewPassword().matches("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{8,}$")) {
 
 			throw new RuntimeException("Password must contain uppercase, lowercase, number and special character");
@@ -261,7 +255,7 @@ public class UserServiceImpl implements UserService {
 
 		exitingUser.setUpdateAt(Instant.now());
 		User updatedUser = userRepository.save(exitingUser);
-		emailService.sendPasswordChangedMail(exitingUser.getEmail(),exitingUser.getName() );
+		emailService.sendPasswordChangedMail(exitingUser.getEmail(), exitingUser.getName());
 
 		return modelMapper.map(updatedUser, UserDto.class);
 	}
