@@ -14,18 +14,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
-
-	@Bean
-CommandLineRunner smtpTest() {
-    return args -> {
-        try (Socket socket = new Socket("smtp.gmail.com", 587)) {
-            System.out.println("SMTP CONNECTED");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    };
-}
-
+	
 	private final JavaMailSender mailSender;
 
 	public void sendAccountDeletedMail(String email, String name) {
