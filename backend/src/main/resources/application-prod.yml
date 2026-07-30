@@ -81,5 +81,5 @@ cloudinary:
   api-secret: ${CLOUDINARY_API_SECRET}
 
 resend:
-  api-key: ${RESEND_API_KEY}
-  from-email: ${RESEND_FROM_EMAIL}
+    api-key: ${RESEND_API_KEY}
+    from-email: ${APP_EMAIL_FROM}
