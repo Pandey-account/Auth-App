@@ -13,6 +13,7 @@ import com.substring.auth.entities.User;
 import com.substring.auth.repositories.PasswordResetTokenRepository;
 import com.substring.auth.repositories.UserRepository;
 import com.substring.auth.services.AuthService;
+import com.substring.auth.services.EmailService;
 import com.substring.auth.services.UserService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,7 @@ public class AuthServiceimpl implements AuthService {
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
-	private EmailServiceImpl emailService;
+	private final EmailService emailService;
 	@Autowired
 	private SmsServiceImpl smsServiceImpl;
 

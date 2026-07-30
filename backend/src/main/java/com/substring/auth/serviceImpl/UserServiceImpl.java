@@ -22,6 +22,7 @@ import com.substring.auth.helpers.UserHelper;
 import com.substring.auth.repositories.RefreshTokenRepository;
 import com.substring.auth.repositories.RoleRepository;
 import com.substring.auth.repositories.UserRepository;
+import com.substring.auth.services.EmailService;
 import com.substring.auth.services.FileStorageService;
 import com.substring.auth.services.UserService;
 
@@ -48,7 +49,7 @@ public class UserServiceImpl implements UserService {
 	private RefreshTokenRepository refreshTokenRepository;
 
 	@Autowired
-	private EmailServiceImpl emailService;
+	private final EmailService emailService;
 
 	@Override
 	@Transactional
