@@ -3,6 +3,7 @@ package com.substring.auth.serviceImpl;
 import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -13,16 +14,18 @@ import com.substring.auth.services.EmailService;
 import lombok.RequiredArgsConstructor;
 
 @Service
-@Profile("dev")
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 	
 	private final JavaMailSender mailSender;
+	
+	@Value("${APP_EMAIL_FROM}")
+	private String from;
 
 	public void sendAccountDeletedMail(String email, String name) {
 
 		SimpleMailMessage message = new SimpleMailMessage();
-
+		message.setFrom(from);
 		message.setTo(email);
 		message.setSubject("Your Account Has Been Deleted Successfully");
 
@@ -42,7 +45,7 @@ public class EmailServiceImpl implements EmailService {
 	@Override
 	public void sendResetPasswordMail(String email, String name, String resetLink) {
 		SimpleMailMessage message = new SimpleMailMessage();
-message.setFrom("mrpandey7759@gmail.com");
+		message.setFrom(from);
 		message.setTo(email);
 		message.setSubject("\"Password Reset Request - Auth App");
 
@@ -57,22 +60,17 @@ message.setFrom("mrpandey7759@gmail.com");
 				+ "If you believe someone is attempting to access your account without authorization, please contact our support team immediately.\n\n"
 				+ "Support Email: support@yourdomain.com\n\n"
 				+ "Best regards,\n" + "Security Team\n" + "Auth App");
-try {
-    System.out.println("Before mailSender.send()");
+
 
     mailSender.send(message);
 
-    System.out.println("After mailSender.send()");
-} catch (Exception e) {
-    System.out.println("Mail Exception:");
-    e.printStackTrace();
-    throw e;
-}
+    
 	}
 	@Override
 	public void sendOtpMail(String email, String name, String otp) {
 		SimpleMailMessage message = new SimpleMailMessage();
-
+		
+		message.setFrom(from);
 		message.setTo(email);
 		message.setSubject("Your Password Reset Verification Code");
 
@@ -93,7 +91,8 @@ try {
 	@Override
 	public void sendPasswordChangedMail(String email, String name) {
 		SimpleMailMessage message = new SimpleMailMessage();
-
+		
+		message.setFrom(from);
 		message.setTo(email);
 		message.setSubject("Password Changed Successfully");
 
