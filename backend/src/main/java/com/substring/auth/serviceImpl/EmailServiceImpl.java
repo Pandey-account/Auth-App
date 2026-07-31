@@ -14,6 +14,7 @@ import com.substring.auth.services.EmailService;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Profile({"default","dev"})
 @RequiredArgsConstructor
 public class EmailServiceImpl implements EmailService {
 	
