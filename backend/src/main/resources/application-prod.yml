@@ -32,9 +32,9 @@ spring:
               - openid
 
           github:
-              client-id: ${GITHUB_CLIENT_ID}
-              client-secret: ${GITHUB_CLIENT_SECRET}
-              scope:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            scope:
               - read:user
               - user:email
 
@@ -69,11 +69,12 @@ app:
       failure-redirect: ${FRONT_END_FAILURE_REDIRECT}
       reset-url: ${FRONT_END_RESET_URL}
 
-    msg91:
-      auth:
-        key: ${MSG91_AUTH_KEY}
-      template:
-        id: ${MSG91_TEMPLATE_ID}
+  msg91:
+    auth:
+      key: ${MSG91_AUTH_KEY}
+    template:
+      id: ${MSG91_TEMPLATE_ID}
+    sender: ${MSG91_SENDER}
 
 cloudinary:
   cloud-name: ${CLOUDINARY_CLOUD_NAME}
