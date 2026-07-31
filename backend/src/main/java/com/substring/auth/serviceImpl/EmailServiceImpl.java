@@ -20,13 +20,16 @@ public class EmailServiceImpl implements EmailService {
 	
 	private final JavaMailSender mailSender;
 	
-	@Value("${APP_EMAIL_FROM}")
-	private String from;
+	@Value("${app.email.from}")
+	private String fromEmail;
+
+	@Value("${app.email.name}")
+	private String fromName;
 
 	public void sendAccountDeletedMail(String email, String name) {
 
 		SimpleMailMessage message = new SimpleMailMessage();
-		message.setFrom(from);
+		message.setFrom(fromEmail);
 		message.setTo(email);
 		message.setSubject("Your Account Has Been Deleted Successfully");
 
@@ -46,7 +49,7 @@ public class EmailServiceImpl implements EmailService {
 	@Override
 	public void sendResetPasswordMail(String email, String name, String resetLink) {
 		SimpleMailMessage message = new SimpleMailMessage();
-		message.setFrom(from);
+		message.setFrom(fromEmail);
 		message.setTo(email);
 		message.setSubject("\"Password Reset Request - Auth App");
 
@@ -71,7 +74,7 @@ public class EmailServiceImpl implements EmailService {
 	public void sendOtpMail(String email, String name, String otp) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		
-		message.setFrom(from);
+		message.setFrom(fromEmail);
 		message.setTo(email);
 		message.setSubject("Your Password Reset Verification Code");
 
@@ -93,7 +96,7 @@ public class EmailServiceImpl implements EmailService {
 	public void sendPasswordChangedMail(String email, String name) {
 		SimpleMailMessage message = new SimpleMailMessage();
 		
-		message.setFrom(from);
+		message.setFrom(fromEmail);
 		message.setTo(email);
 		message.setSubject("Password Changed Successfully");
 

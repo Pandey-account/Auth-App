@@ -20,12 +20,11 @@ public class SmsServiceImpl implements SmsService {
 
 	private static final Logger logger = LoggerFactory.getLogger(SmsServiceImpl.class);
 
-	@Value("${app.auth.msg91.auth.key}")
+	@Value("${app.msg91.auth.key}")
 	private String authKey;
 
-	@Value("${app.auth.msg91.template.id}")
+	@Value("${app.msg91.template.id}")
 	private String templateId;
-
 	private final RestTemplate restTemplate;
 
 	@Override

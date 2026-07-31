@@ -69,8 +69,12 @@ app:
       failure-redirect: ${FRONT_END_FAILURE_REDIRECT:http://localhost:5173/oauth/failure}
       reset-url: ${FRONT_END_RESET_URL:http://localhost:5173/reset-password}
 
-    msg91:
-      auth:
-        key: ${MSG91_AUTH_KEY:test-key}
-      template:
-        id: ${MSG91_TEMPLATE_ID:test-template-id}
+  email:
+    from: ${APP_EMAIL_FROM:mrpandey7759@gmail.com}
+    name: Auth App
+
+  msg91:
+    auth:
+      key: ${MSG91_AUTH_KEY:test-key}
+    template:
+      id: ${MSG91_TEMPLATE_ID:test-template-id}

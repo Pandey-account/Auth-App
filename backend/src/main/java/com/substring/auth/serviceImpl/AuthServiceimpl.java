@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import com.substring.auth.dtos.UserDto;
@@ -32,6 +33,9 @@ public class AuthServiceimpl implements AuthService {
 	private final EmailService emailService;
 	@Autowired
 	private SmsServiceImpl smsServiceImpl;
+	
+	@Value("${app.auth.frontend.reset-url}")
+	private String frontendResetUrl;
 
 	@Autowired
 	private PasswordResetTokenRepository passwordResetTokenRepository;
@@ -84,7 +88,7 @@ public class AuthServiceimpl implements AuthService {
 
 		passwordResetTokenRepository.save(reset);
 
-		String resetLink = "http://localhost:5173/reset-password?token=" + token;
+		String resetLink = frontendResetUrl + "?token=" + token;
 
 		emailService.sendResetPasswordMail(user.getEmail(), user.getName(), resetLink);
 
