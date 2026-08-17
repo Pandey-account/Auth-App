@@ -95,8 +95,9 @@ public class AuthServiceimpl implements AuthService {
 		// Production
 		// smsServiceImpl.sendOtpSms(user.getMobileNo(), otp);
 	}
+	
 	@Override
-@Transactional
+    @Transactional
 	public void resetPassword(String token, String otp, String newPassword, String ipAddress) {
 
 		PasswordResetToken reset = passwordResetTokenRepository.findByToken(token)
