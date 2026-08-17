@@ -117,7 +117,7 @@ public class AuthServiceimpl implements AuthService {
 			throw new RuntimeException("Otp Expired");
 		}
 
-		if (reset.getOtpAttempts() >= 3) {
+		if (reset.getOtpAttempts() >= 10) {
 			throw new RuntimeException("Maximum OTP attempts exceeded");
 		}
 
