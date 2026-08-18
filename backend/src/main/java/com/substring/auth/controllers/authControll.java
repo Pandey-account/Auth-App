@@ -239,33 +239,66 @@ public class authControll {
 	}
 
 	@PostMapping("/forgot-password")
-	public ResponseEntity<?> ForgotPassword(@RequestBody ForgotPasswordRequest forgotPasswordRequest,
-			HttpServletRequest servletRequest) {
+public ResponseEntity<?> forgotPassword(
+        @RequestBody ForgotPasswordRequest request,
+        HttpServletRequest servletRequest) {
 
-		String ipAddress = servletRequest.getRemoteAddr();
+    String ipAddress = servletRequest.getRemoteAddr();
 
-		authService.forgotPassword(forgotPasswordRequest.getIdentifier(), ipAddress);
+    authService.forgotPassword(
+            request.getIdentifier(),
+            ipAddress
+    );
 
-		return ResponseEntity.ok("Reset link sent successfully");
-	}
+    return ResponseEntity.ok(
+            "Reset link sent successfully"
+    );
+}
 
-	@PostMapping("/reset-password")
-	public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest passwordRequest,
-			HttpServletRequest servletRequest) {
+@PostMapping("/send-otp")
+public ResponseEntity<?> sendInitialOtp(
+        @RequestBody Map<String, String> request) {
 
-		String ipAddress = servletRequest.getRemoteAddr();
+    authService.sendInitialOtp(
+            request.get("token")
+    );
 
-		authService.resetPassword(passwordRequest.getToken(), passwordRequest.getOtp(), passwordRequest.getPassword(), ipAddress);
+    return ResponseEntity.ok(
+            "OTP Sent Successfully"
+    );
+}
 
-		return ResponseEntity.ok("Password updated successfully");
-	}
+@PostMapping("/resend-otp")
+public ResponseEntity<?> resendOtp(
+        @RequestBody Map<String, String> request) {
 
-	@PostMapping("/resend-otp")
-	public ResponseEntity<?> sendOtp(@RequestBody Map<String, String> request) {
+    authService.resendOtp(
+            request.get("token")
+    );
 
-		authService.sendOtp(request.get("token"));
+    return ResponseEntity.ok(
+            "OTP Resent Successfully"
+    );
+}
 
-		return ResponseEntity.ok("OTP Sent Successfully");
-	}
+@PostMapping("/reset-password")
+public ResponseEntity<?> resetPassword(
+        @RequestBody ResetPasswordRequest request,
+        HttpServletRequest servletRequest) {
+
+    String ipAddress =
+            servletRequest.getRemoteAddr();
+
+    authService.resetPassword(
+            request.getToken(),
+            request.getOtp(),
+            request.getPassword(),
+            ipAddress
+    );
+
+    return ResponseEntity.ok(
+            "Password updated successfully"
+    );
+}
 
 }
