@@ -108,11 +108,12 @@ public class UserController {
 	}
 	
 	@GetMapping("/profile-picture")
-    public ResponseEntity<Resource> getProfilePicture(Authentication authentication)
-            throws MalformedURLException, IOException {
+public ResponseEntity<?> getProfilePicture(
+        Authentication authentication
+) throws IOException {
 
-        return fileStorageService.getProfilePicture(authentication);
-    }
+    return fileStorageService.getProfilePicture(authentication);
+}
 	
 	@PutMapping(value = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<UserDto>updateUserNameProfilePicture(@ModelAttribute UpdateDto updateDto, Authentication authentication){
