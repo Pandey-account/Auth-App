@@ -6,10 +6,17 @@ public interface AuthService {
 
 	UserDto registerUser(UserDto userDto);
 
-	void resetPassword(String token, String otp, String newPassword, String ipAddress);
+    void forgotPassword(String identifier, String ipAddress);
 
-	void forgotPassword(String identiFier, String ipAddress);
+    void resetPassword(
+            String token,
+            String otp,
+            String newPassword,
+            String ipAddress
+    );
 
-	void sendOtp(String token);
+    void sendInitialOtp(String token);
+
+    void resendOtp(String token);
 
 }
