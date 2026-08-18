@@ -41,17 +41,17 @@ export const refreshToken = async () => {
     return response.data
 };
 
-//get profile picture
 export const imageUrl = async () => {
 
     const response = await apiClient.get(
-        `users/profile-picture`,
+        "/users/profile-picture",
         {
             responseType: "blob",
         }
     );
+
     return response.data;
-}
+};
 
 // update Profile 
 export const updateProfile = async (
