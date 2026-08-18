@@ -34,18 +34,16 @@ public class AuthServiceimpl implements AuthService {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
     private final EmailService emailService;
-
-    @Autowired
-    private PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Value("${app.auth.frontend.reset-url}")
     private String frontendResetUrl;
 
+    @Autowired
+    private PasswordResetTokenRepository passwordResetTokenRepository;
+
     @Override
     public UserDto registerUser(UserDto userDto) {
-
         return userService.createUser(userDto);
     }
 
@@ -54,7 +52,8 @@ public class AuthServiceimpl implements AuthService {
 
         User user = userRepository
                 .findByEmailOrMobileNo(identifier, identifier)
-                .orElseThrow(() -> new RuntimeException("User Not found"));
+                .orElseThrow(() ->
+                        new RuntimeException("User Not found"));
 
         long ipAttempts =
                 passwordResetTokenRepository
@@ -137,9 +136,8 @@ public class AuthServiceimpl implements AuthService {
         PasswordResetToken reset =
                 passwordResetTokenRepository
                         .findByToken(token)
-                        .orElseThrow(
-                                () -> new RuntimeException("Invalid Token")
-                        );
+                        .orElseThrow(() ->
+                                new RuntimeException("Invalid Token"));
 
         if (reset.getTokenExpiresAt()
                 .isBefore(LocalDateTime.now())) {
@@ -179,9 +177,8 @@ public class AuthServiceimpl implements AuthService {
         PasswordResetToken reset =
                 passwordResetTokenRepository
                         .findByToken(token)
-                        .orElseThrow(
-                                () -> new RuntimeException("Invalid Token")
-                        );
+                        .orElseThrow(() ->
+                                new RuntimeException("Invalid Token"));
 
         if (reset.getTokenExpiresAt()
                 .isBefore(LocalDateTime.now())) {
@@ -203,7 +200,6 @@ public class AuthServiceimpl implements AuthService {
         }
 
         if (reset.getResendAttempts() >= 3) {
-
             throw new RuntimeException(
                     "OTP resend limit exceeded. Try again after 1 hour."
             );
@@ -227,9 +223,11 @@ public class AuthServiceimpl implements AuthService {
                 reset.getResendAttempts() + 1
         );
 
-        if (reset.getResendWindowStart() == null) {
-            reset.setResendWindowStart(now);
-        }
+        reset.setResendWindowStart(
+                reset.getResendWindowStart() == null
+                        ? now
+                        : reset.getResendWindowStart()
+        );
 
         passwordResetTokenRepository.save(reset);
 
@@ -251,36 +249,36 @@ public class AuthServiceimpl implements AuthService {
         PasswordResetToken reset =
                 passwordResetTokenRepository
                         .findByToken(token)
-                        .orElseThrow(
-                                () -> new RuntimeException("Invalid Token")
-                        );
+                        .orElseThrow(() ->
+                                new RuntimeException("Invalid Token"));
 
-        if (reset.getTokenExpiresAt()
-                .isBefore(LocalDateTime.now())) {
+        LocalDateTime now = LocalDateTime.now();
 
+        if (reset.getTokenExpiresAt().isBefore(now)) {
             throw new RuntimeException(
                     "Reset Link Expired"
             );
         }
 
-        if (reset.getOtp() == null
-                || reset.getOtpExpiresAt() == null) {
-
+        if (reset.getOtp() == null) {
             throw new RuntimeException(
                     "OTP has not been generated yet."
             );
         }
 
-        if (reset.getOtpExpiresAt()
-                .isBefore(LocalDateTime.now())) {
+        if (reset.getOtpExpiresAt() == null) {
+            throw new RuntimeException(
+                    "OTP has not been generated yet."
+            );
+        }
 
+        if (reset.getOtpExpiresAt().isBefore(now)) {
             throw new RuntimeException(
                     "Otp Expired"
             );
         }
 
         if (reset.getOtpAttempts() >= 10) {
-
             throw new RuntimeException(
                     "Maximum OTP attempts exceeded"
             );
