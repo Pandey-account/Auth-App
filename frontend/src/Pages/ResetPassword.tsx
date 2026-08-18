@@ -1,9 +1,13 @@
-import { useResetPassword } from "../components/handlers/useResetPassword";
+import {
+  useResetPassword
+} from "../components/handlers/useResetPassword";
+
 import { Button } from "../components/ui/button";
 import { Card, CardContent } from "../components/ui/card";
 import { Input } from "../components/ui/input";
 
 function ResetPassword() {
+
   const {
     formData,
     loading,
@@ -16,12 +20,10 @@ function ResetPassword() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-white px-6 py-10 dark:bg-black">
 
-      {/* Background Glow */}
       <div className="absolute left-0 top-0 h-72 w-72 rounded-full bg-cyan-500/20 blur-3xl" />
 
       <div className="absolute bottom-0 right-0 h-72 w-72 rounded-full bg-violet-500/20 blur-3xl" />
 
-      {/* Grid Overlay */}
       <div
         className="
           absolute inset-0
@@ -31,7 +33,6 @@ function ResetPassword() {
         "
       />
 
-      {/* Card */}
       <Card
         className="
           relative z-10 w-full max-w-md
@@ -43,10 +44,11 @@ function ResetPassword() {
           dark:bg-white/5
         "
       >
+
         <CardContent className="p-8">
 
-          {/* Icon */}
           <div className="mb-8 flex justify-center">
+
             <div
               className="
                 flex h-14 w-14 items-center justify-center
@@ -58,10 +60,11 @@ function ResetPassword() {
             >
               🔒
             </div>
+
           </div>
 
-          {/* Heading */}
           <div className="text-center">
+
             <h1
               className="
                 bg-gradient-to-r
@@ -81,15 +84,14 @@ function ResetPassword() {
             <p className="mt-3 text-sm text-black/60 dark:text-white/60">
               Create a strong new password to secure your account.
             </p>
+
           </div>
 
-          {/* Form */}
           <form
             onSubmit={handleSubmit}
             className="mt-8 space-y-5"
           >
 
-            {/* New Password */}
             <Input
               type="password"
               name="password"
@@ -106,7 +108,6 @@ function ResetPassword() {
               "
             />
 
-            {/* Confirm Password */}
             <Input
               type="password"
               name="confirmPassword"
@@ -123,7 +124,6 @@ function ResetPassword() {
               "
             />
 
-            {/* OTP */}
             <Input
               type="text"
               name="otp"
@@ -145,21 +145,39 @@ function ResetPassword() {
               "
             />
 
-            {/* OTP Timer + Resend */}
-            <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+            <div
+              className="
+                flex items-center justify-between
+                text-sm
+                text-gray-500
+                dark:text-gray-400
+              "
+            >
 
               <span>
                 OTP expires in{" "}
-                <span className="font-semibold text-cyan-600 dark:text-cyan-400">
+
+                <span
+                  className="
+                    font-semibold
+                    text-cyan-600
+                    dark:text-cyan-400
+                  "
+                >
                   {Math.floor(timeLeft / 60)}:
-                  {String(timeLeft % 60).padStart(2, "0")}
+                  {String(
+                    timeLeft % 60
+                  ).padStart(2, "0")}
                 </span>
               </span>
 
               <Button
                 type="button"
                 variant="ghost"
-                disabled={timeLeft > 0 || loading}
+                disabled={
+                  timeLeft > 0 ||
+                  loading
+                }
                 onClick={handleResendOtp}
                 className="
                   text-cyan-500
@@ -173,7 +191,6 @@ function ResetPassword() {
 
             </div>
 
-            {/* Submit Button */}
             <Button
               type="submit"
               disabled={loading}
@@ -192,12 +209,15 @@ function ResetPassword() {
                 dark:hover:bg-gray-200
               "
             >
-              {loading ? "Updating..." : "Reset Password"}
+              {loading
+                ? "Updating..."
+                : "Reset Password"}
             </Button>
 
           </form>
 
         </CardContent>
+
       </Card>
 
     </div>
