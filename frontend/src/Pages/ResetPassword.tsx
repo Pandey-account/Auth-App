@@ -80,34 +80,30 @@ function ResetPassword() {
             />
 
             <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400">
+  <span>
+    OTP expires in{" "}
+    {Math.floor(timeLeft / 60)}:
+    {String(timeLeft % 60).padStart(2, "0")}
+  </span>
 
-              <span>
-                OTP expires in:
-                {" "}
-                {Math.floor(timeLeft / 60)}
-                :
-                {String(timeLeft % 60).padStart(2, "0")}
-              </span>
+  <Button
+    type="button"
+    disabled={timeLeft > 0}
+    onClick={handleResendOtp}
+    className="text-cyan-500 hover:text-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    Resend OTP
+  </Button>
+</div>
 
-              <Button
-                type="button"
-                disabled={timeLeft > 0}
-                onClick={handleResendOtp}
-                className="
-      text-cyan-500
-      hover:text-cyan-400
-      disabled:opacity-50
-      disabled:cursor-not-allowed
-    "
-              >
-                Resend OTP
-              </Button>
-
-            </div>
-
-            <Button type="submit" disabled={loading}>
-              {loading ? "Updating..." : "Reset Password"}
-            </Button>
+{/* SUBMIT BUTTON */}
+<button
+  type="submit"
+  disabled={loading}
+  className="w-full h-12 rounded-xl bg-black text-white font-semibold hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+>
+  {loading ? "Updating..." : "Reset Password"}
+</button>
           </form>
 
         </CardContent>
