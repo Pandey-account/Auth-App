@@ -1,11 +1,13 @@
 package com.substring.auth.serviceImpl;
 
-import java.net.URI;
+import java.net.URL;
 import java.util.Map;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -35,9 +37,7 @@ public class CloudinaryFileStorageService
         try {
 
             if (file == null || file.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "File is empty"
-                );
+                throw new IllegalArgumentException("File is empty");
             }
 
             Map<?, ?> uploadResult =
@@ -62,46 +62,65 @@ public class CloudinaryFileStorageService
     @Override
     public String deleteFile(String imageUrl) {
 
-        /*
-         * TODO:
-         * Implement Cloudinary public_id extraction
-         * and cloudinary.uploader().destroy(...)
-         *
-         * For now, don't delete anything.
-         */
+        // TODO: Implement Cloudinary delete later
 
         return imageUrl;
     }
 
     @Override
-    public ResponseEntity<?> getProfilePicture(
+    public ResponseEntity<Resource> getProfilePicture(
             Authentication authentication
     ) {
 
-        String email = authentication.getName();
+        try {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+            String email = authentication.getName();
 
-        String imageUrl = user.getImageFile();
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() ->
+                            new RuntimeException(
+                                    "User not found"
+                            ));
 
-        if (imageUrl == null || imageUrl.isBlank()) {
+            String imageUrl = user.getImageFile();
+
+            if (imageUrl == null || imageUrl.isBlank()) {
+
+                return ResponseEntity
+                        .notFound()
+                        .build();
+            }
+
+            URL url = new URL(imageUrl);
+
+            InputStreamResource resource =
+                    new InputStreamResource(
+                            url.openStream()
+                    );
+
+            String contentType =
+                    url.openConnection()
+                            .getContentType();
+
+            if (contentType == null) {
+                contentType =
+                        MediaType.APPLICATION_OCTET_STREAM_VALUE;
+            }
 
             return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND)
-                    .body("Profile picture not found");
+                    .ok()
+                    .header(
+                            HttpHeaders.CONTENT_TYPE,
+                            contentType
+                    )
+                    .body(resource);
+
+        } catch (Exception e) {
+
+            throw new RuntimeException(
+                    "Failed to load profile picture",
+                    e
+            );
         }
-
-        HttpHeaders headers = new HttpHeaders();
-
-        headers.setLocation(
-                URI.create(imageUrl)
-        );
-
-        return ResponseEntity
-                .status(HttpStatus.FOUND)
-                .headers(headers)
-                .build();
     }
 }
