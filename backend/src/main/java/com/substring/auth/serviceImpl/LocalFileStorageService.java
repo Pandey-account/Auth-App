@@ -53,7 +53,10 @@ public class LocalFileStorageService implements FileStorageService {
 		}
 	}
 
-	public ResponseEntity<Resource> getProfilePicture(Authentication authentication) throws IOException {
+	@Override
+public ResponseEntity<?> getProfilePicture(
+        Authentication authentication
+) throws IOException {
 
 		String email = authentication.getName();
 
