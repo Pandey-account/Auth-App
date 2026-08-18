@@ -4,11 +4,12 @@ import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.UUID;
 
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.substring.auth.dtos.UserDto;
 import com.substring.auth.entities.PasswordResetToken;
 import com.substring.auth.entities.User;
@@ -24,165 +25,293 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthServiceimpl implements AuthService {
 
-	@Autowired
-	private UserService userService;
-	@Autowired
-	private PasswordEncoder passwordEncoder;
-	@Autowired
-	private UserRepository userRepository;
-	@Autowired
-	private final EmailService emailService;
-	@Autowired
-	private SmsServiceImpl smsServiceImpl;
-	
-	@Value("${app.auth.frontend.reset-url}")
-	private String frontendResetUrl;
+    @Autowired
+    private UserService userService;
 
-	@Autowired
-	private PasswordResetTokenRepository passwordResetTokenRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-	@Override
-	public UserDto registerUser(UserDto userDto) {
+    @Autowired
+    private UserRepository userRepository;
 
-		UserDto userDto1 = userService.createUser(userDto);
+    @Autowired
+    private final EmailService emailService;
 
-		return userDto1;
-	}
+    @Autowired
+    private PasswordResetTokenRepository passwordResetTokenRepository;
 
-	public void forgotPassword(String identiFier, String ipAddress) {
+    @Value("${app.auth.frontend.reset-url}")
+    private String frontendResetUrl;
 
-		User user = userRepository.findByEmailOrMobileNo(identiFier, identiFier)
-				.orElseThrow(() -> new RuntimeException("User Not found"));
+    @Override
+    public UserDto registerUser(UserDto userDto) {
 
-		long ipAttempts = passwordResetTokenRepository.countByRequestIpAddressAndCreatedAtAfter(ipAddress,
-				LocalDateTime.now().minusHours(1));
+        return userService.createUser(userDto);
+    }
 
-		if (ipAttempts >= 5) {
-			throw new RuntimeException("Too many requests from this IP address.");
-		}
+    @Override
+    public void forgotPassword(String identifier, String ipAddress) {
 
-		PasswordResetToken previous = passwordResetTokenRepository.findTopByUserOrderByCreatedAtDesc(user).orElse(null);
+        User user = userRepository
+                .findByEmailOrMobileNo(identifier, identifier)
+                .orElseThrow(() -> new RuntimeException("User Not found"));
 
-		int resetRequests = 1;
-		LocalDateTime resetWindowStart = LocalDateTime.now();
+        long ipAttempts =
+                passwordResetTokenRepository
+                        .countByRequestIpAddressAndCreatedAtAfter(
+                                ipAddress,
+                                LocalDateTime.now().minusHours(1)
+                        );
 
-		if (previous != null && previous.getResetWindowStart() != null) {
+        if (ipAttempts >= 5) {
+            throw new RuntimeException(
+                    "Too many requests from this IP address."
+            );
+        }
 
-			boolean sameWindow = previous.getResetWindowStart().plusHours(24).isAfter(LocalDateTime.now());
+        PasswordResetToken previous =
+                passwordResetTokenRepository
+                        .findTopByUserOrderByCreatedAtDesc(user)
+                        .orElse(null);
 
-			if (sameWindow) {
+        int resetRequests = 1;
+        LocalDateTime resetWindowStart = LocalDateTime.now();
 
-				if (previous.getResetRequests() >= 10) {
-					throw new RuntimeException("Maximum reset requests exceeded. Try again after 24 hours.");
-				}
+        if (previous != null
+                && previous.getResetWindowStart() != null) {
 
-				resetRequests = previous.getResetRequests() + 1;
-				resetWindowStart = previous.getResetWindowStart();
-			}
-		}
+            boolean sameWindow =
+                    previous.getResetWindowStart()
+                            .plusHours(24)
+                            .isAfter(LocalDateTime.now());
 
-		String token = UUID.randomUUID().toString();
+            if (sameWindow) {
 
-		PasswordResetToken reset = PasswordResetToken.builder().user(user).token(token).otpAttempts(0).resendAttempts(0)
-				.resetRequests(resetRequests).resetWindowStart(resetWindowStart).requestIpAddress(ipAddress)
-				.tokenExpiresAt(LocalDateTime.now().plusMinutes(15)).createdAt(LocalDateTime.now()).build();
+                if (previous.getResetRequests() >= 10) {
+                    throw new RuntimeException(
+                            "Maximum reset requests exceeded. Try again after 24 hours."
+                    );
+                }
 
-		passwordResetTokenRepository.save(reset);
+                resetRequests =
+                        previous.getResetRequests() + 1;
 
-		String resetLink = frontendResetUrl + "?token=" + token;
+                resetWindowStart =
+                        previous.getResetWindowStart();
+            }
+        }
 
-		emailService.sendResetPasswordMail(user.getEmail(), user.getName(), resetLink);
+        String token = UUID.randomUUID().toString();
 
-		// Production
-		// smsServiceImpl.sendOtpSms(user.getMobileNo(), otp);
-	}
-	
-	@Override
+        PasswordResetToken reset =
+                PasswordResetToken.builder()
+                        .user(user)
+                        .token(token)
+                        .otpAttempts(0)
+                        .resendAttempts(0)
+                        .resetRequests(resetRequests)
+                        .resetWindowStart(resetWindowStart)
+                        .requestIpAddress(ipAddress)
+                        .tokenExpiresAt(
+                                LocalDateTime.now().plusMinutes(15)
+                        )
+                        .createdAt(LocalDateTime.now())
+                        .build();
+
+        passwordResetTokenRepository.save(reset);
+
+        String resetLink =
+                frontendResetUrl + "?token=" + token;
+
+        emailService.sendResetPasswordMail(
+                user.getEmail(),
+                user.getName(),
+                resetLink
+        );
+    }
+
+    @Override
     @Transactional
-	public void resetPassword(String token, String otp, String newPassword, String ipAddress) {
+    public void sendInitialOtp(String token) {
 
-		PasswordResetToken reset = passwordResetTokenRepository.findByToken(token)
-				.orElseThrow(() -> new RuntimeException("Invalid Token"));
+        PasswordResetToken reset =
+                passwordResetTokenRepository
+                        .findByToken(token)
+                        .orElseThrow(
+                                () -> new RuntimeException("Invalid Token")
+                        );
 
-		if (reset.getTokenExpiresAt().isBefore(LocalDateTime.now())) {
+        if (reset.getTokenExpiresAt()
+                .isBefore(LocalDateTime.now())) {
 
-			throw new RuntimeException("Reset Link Expired");
-		}
-		if (reset.getOtp() == null) {
-			throw new RuntimeException("OTP has not been generated yet.");
-		}
+            throw new RuntimeException(
+                    "Reset link expired"
+            );
+        }
 
-		if (reset.getOtpExpiresAt() == null) {
-			throw new RuntimeException("OTP has not been generated yet.");
-		}
-		if (reset.getOtpExpiresAt().isBefore(LocalDateTime.now())) {
+        String otp =
+                String.format(
+                        "%06d",
+                        new Random().nextInt(1000000)
+                );
 
-			throw new RuntimeException("Otp Expired");
-		}
+        reset.setOtp(otp);
 
-		if (reset.getOtpAttempts() >= 10) {
-			throw new RuntimeException("Maximum OTP attempts exceeded");
-		}
+        reset.setOtpExpiresAt(
+                LocalDateTime.now().plusMinutes(5)
+        );
 
-		if (!reset.getOtp().equals(otp)) {
+        reset.setOtpAttempts(0);
 
-			reset.setOtpAttempts(reset.getOtpAttempts() + 1);
+        passwordResetTokenRepository.save(reset);
 
-			passwordResetTokenRepository.save(reset);
+        emailService.sendOtpMail(
+                reset.getUser().getEmail(),
+                reset.getUser().getName(),
+                otp
+        );
+    }
 
-			throw new RuntimeException("Invalid OTP");
-		}
+    @Override
+    @Transactional
+    public void resendOtp(String token) {
 
-		User user = reset.getUser();
+        PasswordResetToken reset =
+                passwordResetTokenRepository
+                        .findByToken(token)
+                        .orElseThrow(
+                                () -> new RuntimeException("Invalid Token")
+                        );
 
-		user.setPassword(passwordEncoder.encode(newPassword));
+        if (reset.getTokenExpiresAt()
+                .isBefore(LocalDateTime.now())) {
 
-		userRepository.save(user);
+            throw new RuntimeException(
+                    "Reset link expired"
+            );
+        }
 
-		emailService.sendPasswordChangedMail(user.getEmail(), user.getName());
+        LocalDateTime now = LocalDateTime.now();
 
-		passwordResetTokenRepository.delete(reset);
-	}
+        if (reset.getResendWindowStart() == null
+                || reset.getResendWindowStart()
+                        .plusHours(1)
+                        .isBefore(now)) {
 
-	@Override
-	@Transactional
-	public void sendOtp(String token) {
+            reset.setResendAttempts(0);
+            reset.setResendWindowStart(now);
+        }
 
-		PasswordResetToken reset = passwordResetTokenRepository.findByToken(token)
-				.orElseThrow(() -> new RuntimeException("Invalid Token"));
+        if (reset.getResendAttempts() >= 3) {
 
-		if (reset.getTokenExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new RuntimeException(
+                    "OTP resend limit exceeded. Try again after 1 hour."
+            );
+        }
 
-			throw new RuntimeException("Reset link expired");
-		}
+        String otp =
+                String.format(
+                        "%06d",
+                        new Random().nextInt(1000000)
+                );
 
-		if (reset.getResendWindowStart() == null
-				|| reset.getResendWindowStart().plusHours(1).isBefore(LocalDateTime.now())) {
+        reset.setOtp(otp);
 
-			reset.setResendAttempts(0);
-			reset.setResendWindowStart(LocalDateTime.now());
-		}
+        reset.setOtpExpiresAt(
+                now.plusMinutes(5)
+        );
 
-		if (reset.getResendAttempts() >= 3) {
-			throw new RuntimeException("OTP resend limit exceeded. Try again after 1 hour.");
-		}
-		String otp = String.format("%06d", new Random().nextInt(1000000));
+        reset.setOtpAttempts(0);
 
-		reset.setOtp(otp);
+        reset.setResendAttempts(
+                reset.getResendAttempts() + 1
+        );
 
-		reset.setOtpExpiresAt(LocalDateTime.now().plusMinutes(5));
+        if (reset.getResendWindowStart() == null) {
+            reset.setResendWindowStart(now);
+        }
 
-		reset.setOtpAttempts(0);
+        passwordResetTokenRepository.save(reset);
 
-		reset.setResendAttempts(reset.getResendAttempts() + 1);
+        emailService.sendOtpMail(
+                reset.getUser().getEmail(),
+                reset.getUser().getName(),
+                otp
+        );
+    }
 
-		passwordResetTokenRepository.save(reset);
+    @Override
+    @Transactional
+    public void resetPassword(
+            String token,
+            String otp,
+            String newPassword,
+            String ipAddress) {
 
-		emailService.sendOtpMail(reset.getUser().getEmail(), reset.getUser().getName(), otp);
+        PasswordResetToken reset =
+                passwordResetTokenRepository
+                        .findByToken(token)
+                        .orElseThrow(
+                                () -> new RuntimeException("Invalid Token")
+                        );
 
-		// Production
-		// smsServiceImpl.sendOtpSms(reset.getUser().getMobileNo(), otp);
+        if (reset.getTokenExpiresAt()
+                .isBefore(LocalDateTime.now())) {
 
-	}
+            throw new RuntimeException(
+                    "Reset Link Expired"
+            );
+        }
 
+        if (reset.getOtp() == null
+                || reset.getOtpExpiresAt() == null) {
+
+            throw new RuntimeException(
+                    "OTP has not been generated yet."
+            );
+        }
+
+        if (reset.getOtpExpiresAt()
+                .isBefore(LocalDateTime.now())) {
+
+            throw new RuntimeException(
+                    "Otp Expired"
+            );
+        }
+
+        if (reset.getOtpAttempts() >= 10) {
+
+            throw new RuntimeException(
+                    "Maximum OTP attempts exceeded"
+            );
+        }
+
+        if (!reset.getOtp().equals(otp)) {
+
+            reset.setOtpAttempts(
+                    reset.getOtpAttempts() + 1
+            );
+
+            passwordResetTokenRepository.save(reset);
+
+            throw new RuntimeException(
+                    "Invalid OTP"
+            );
+        }
+
+        User user = reset.getUser();
+
+        user.setPassword(
+                passwordEncoder.encode(newPassword)
+        );
+
+        userRepository.save(user);
+
+        emailService.sendPasswordChangedMail(
+                user.getEmail(),
+                user.getName()
+        );
+
+        passwordResetTokenRepository.delete(reset);
+    }
 }
