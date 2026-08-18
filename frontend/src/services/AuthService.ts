@@ -114,6 +114,18 @@ export const forgotPassword = async (
   return response.data;
 };
 
+export const sendInitialOtp = async (
+  token: string
+) => {
+  const response = await apiClient.post(
+    "/auth/send-otp",
+    {
+      token,
+    }
+  );
+
+  return response.data;
+};
 //send otp 
 export const sendOtp = async (
   token: string
