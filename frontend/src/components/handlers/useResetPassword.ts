@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 
 import {
   resetPassword,
-  sendOtp
+  sendOtp,
 } from "../../services/AuthService";
 
 export const useResetPassword = () => {
@@ -27,8 +27,32 @@ export const useResetPassword = () => {
 
   const [otpSent, setOtpSent] = useState(false);
 
+
   /*
-   * Reset page open hote hi OTP send hoga
+   * Extract backend error message safely
+   */
+  const getErrorMessage = (error: any): string => {
+
+    const data = error?.response?.data;
+
+    if (typeof data === "string") {
+      return data;
+    }
+
+    if (data?.message) {
+      return data.message;
+    }
+
+    if (error?.message) {
+      return error.message;
+    }
+
+    return "Something went wrong. Please try again.";
+  };
+
+
+  /*
+   * Send OTP when reset page opens
    */
   useEffect(() => {
 
@@ -38,6 +62,7 @@ export const useResetPassword = () => {
     }
 
     const sendInitialOtp = async () => {
+
       try {
 
         await sendOtp(token);
@@ -50,9 +75,15 @@ export const useResetPassword = () => {
 
         setTimeLeft(60);
 
-      } catch (error) {
+      } catch (error: any) {
+
+        console.error(
+          "Initial OTP Error:",
+          error?.response?.data || error
+        );
+
         toast.error(
-          "Unable to send OTP"
+          getErrorMessage(error)
         );
       }
     };
@@ -61,16 +92,26 @@ export const useResetPassword = () => {
 
   }, [token]);
 
+
   /*
    * Countdown timer
    */
   useEffect(() => {
 
-    if (timeLeft <= 0) return;
+    if (timeLeft <= 0) {
+      return;
+    }
 
     const interval = setInterval(() => {
 
-      setTimeLeft((prev) => prev - 1);
+      setTimeLeft((prev) => {
+
+        if (prev <= 1) {
+          return 0;
+        }
+
+        return prev - 1;
+      });
 
     }, 1000);
 
@@ -78,11 +119,32 @@ export const useResetPassword = () => {
 
   }, [timeLeft]);
 
+
+  /*
+   * Input change
+   */
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
 
     const { name, value } = e.target;
+
+    /*
+     * OTP only numbers
+     */
+    if (name === "otp") {
+
+      const numericValue = value
+        .replace(/\D/g, "")
+        .slice(0, 6);
+
+      setFormData((prev) => ({
+        ...prev,
+        otp: numericValue,
+      }));
+
+      return;
+    }
 
     setFormData((prev) => ({
       ...prev,
@@ -90,14 +152,26 @@ export const useResetPassword = () => {
     }));
   };
 
+
   /*
    * Resend OTP
    */
   const handleResendOtp = async () => {
 
-    if (!token) return;
+    if (!token) {
+
+      toast.error("Invalid reset link");
+
+      return;
+    }
+
+    if (loading) {
+      return;
+    }
 
     try {
+
+      setLoading(true);
 
       await sendOtp(token);
 
@@ -109,70 +183,13 @@ export const useResetPassword = () => {
 
     } catch (error: any) {
 
-      toast.error(
-        error?.response?.data ||
-        "Unable to resend OTP"
+      console.error(
+        "Resend OTP Error:",
+        error?.response?.data || error
       );
-    }
-  };
-
-  /*
-   * Reset Password
-   */
-  const handleSubmit = async (
-    e: React.FormEvent
-  ) => {
-
-    e.preventDefault();
-
-    if (!token) {
-      toast.error("Invalid reset link");
-      return;
-    }
-
-    if (!formData.otp.trim()) {
-      toast.error("OTP is required");
-      return;
-    }
-
-    if (formData.password.length < 8) {
-      toast.error(
-        "Password must be at least 8 characters"
-      );
-      return;
-    }
-
-    if (
-      formData.password !==
-      formData.confirmPassword
-    ) {
-      toast.error(
-        "Passwords do not match"
-      );
-      return;
-    }
-
-    try {
-
-      setLoading(true);
-
-      await resetPassword(
-        token,
-        formData.otp,
-        formData.password
-      );
-
-      toast.success(
-        "Password updated successfully"
-      );
-
-      navigate("/login");
-
-    } catch (error: any) {
 
       toast.error(
-        error?.response?.data ||
-        "Invalid OTP or expired reset link"
+        getErrorMessage(error)
       );
 
     } finally {
@@ -181,14 +198,182 @@ export const useResetPassword = () => {
     }
   };
 
+
+  /*
+   * Reset Password
+   */
+  const handleSubmit = async (
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+
+    e.preventDefault();
+
+    if (loading) {
+      return;
+    }
+
+    /*
+     * Token validation
+     */
+    if (!token) {
+
+      toast.error(
+        "Invalid or missing reset link"
+      );
+
+      return;
+    }
+
+
+    /*
+     * OTP validation
+     */
+    if (!formData.otp.trim()) {
+
+      toast.error(
+        "OTP is required"
+      );
+
+      return;
+    }
+
+    if (formData.otp.length !== 6) {
+
+      toast.error(
+        "OTP must be 6 digits"
+      );
+
+      return;
+    }
+
+
+    /*
+     * Password validation
+     */
+    if (!formData.password) {
+
+      toast.error(
+        "Password is required"
+      );
+
+      return;
+    }
+
+    if (formData.password.length < 8) {
+
+      toast.error(
+        "Password must be at least 8 characters"
+      );
+
+      return;
+    }
+
+
+    /*
+     * Confirm password validation
+     */
+    if (!formData.confirmPassword) {
+
+      toast.error(
+        "Please confirm your password"
+      );
+
+      return;
+    }
+
+    if (
+      formData.password !==
+      formData.confirmPassword
+    ) {
+
+      toast.error(
+        "Passwords do not match"
+      );
+
+      return;
+    }
+
+
+    try {
+
+      setLoading(true);
+
+      console.log(
+        "Reset password request:",
+        {
+          tokenPresent: !!token,
+          otpLength: formData.otp.length,
+        }
+      );
+
+
+      /*
+       * Call backend
+       */
+      await resetPassword(
+        token,
+        formData.otp,
+        formData.password
+      );
+
+
+      /*
+       * Success
+       */
+      toast.success(
+        "Password updated successfully"
+      );
+
+
+      /*
+       * Redirect login
+       */
+      setTimeout(() => {
+
+        navigate("/login");
+
+      }, 1000);
+
+
+    } catch (error: any) {
+
+      console.error(
+        "Reset Password Error:",
+        error?.response?.data || error
+      );
+
+
+      /*
+       * IMPORTANT:
+       * Never pass error.response.data directly
+       * because it can be an object.
+       */
+      toast.error(
+        getErrorMessage(error)
+      );
+
+
+    } finally {
+
+      setLoading(false);
+    }
+  };
+
+
   return {
+
     formData,
+
     loading,
+
     timeLeft,
+
     otpSent,
 
     handleInputChange,
+
     handleSubmit,
+
     handleResendOtp,
   };
 };
