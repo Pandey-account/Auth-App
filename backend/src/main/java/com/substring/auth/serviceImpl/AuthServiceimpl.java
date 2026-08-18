@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.UUID;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
